@@ -22,3 +22,6 @@ def create(item: schemas.ItemCreate, db: Session = Depends(database.get_db)):
 @app.get("/items", response_model=list[schemas.ItemOut])
 def list_(db: Session = Depends(database.get_db)):
     return crud.list_items(db)
+
+
+# comentario random al final
