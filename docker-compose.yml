@@ -89,6 +89,7 @@ services:
 
   worker:
     build: ./api
+    user: "1000:1000"
     command: [ "celery", "-A", "app.celery_app:celery", "worker", "--loglevel=INFO", "--concurrency=1" ]
     environment:
       DATABASE_URL: postgresql+psycopg2://tcs:tcs@db:5432/tcsdb
@@ -99,3 +100,4 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    restart: unless-stopped

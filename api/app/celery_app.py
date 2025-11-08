@@ -10,10 +10,12 @@ result_backend = os.getenv(
 celery = Celery("tcs_demo", broker=broker_url, backend=result_backend)
 
 # --- Config ---
+celery.conf.broker_connection_retry_on_startup = True
 celery.conf.task_acks_late = True
 celery.conf.worker_prefetch_multiplier = 1
 celery.conf.task_default_retry_delay = 5
 celery.conf.task_time_limit = 60
+
 
 # 👇 Registrar explícitamente el módulo de tareas
 celery.conf.update(imports=("app.tasks",))

@@ -7,6 +7,7 @@ import random
 
 import pandas as pd
 import psycopg2
+from psycopg2.extras import execute_values
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -39,35 +40,47 @@ def generate_dummy_csv(**_):
 
 def transform_with_pandas(**_):
     df = pd.read_csv(RAW_CSV)
-    # Normalización simple: name en lowercase y limitar 2 decimales
     df["name"] = df["name"].str.lower().str.strip()
     df["price"] = df["price"].round(2)
+    # Reglas simples:
+    df = df.dropna(subset=["name", "price"])
+    df = df[df["price"].between(0.01, 1_000_000)]
     df.to_csv(RAW_CSV, index=False)
 
 
 def load_to_postgres(**_):
+    import csv
+
     conn = psycopg2.connect(
-        host=PG_HOST, port=PG_PORT, dbname=PG_DB, user=PG_USER, password=PG_PASS
+        host=PG_HOST,
+        port=PG_PORT,
+        dbname=PG_DB,
+        user=PG_USER,
+        password=PG_PASS,
     )
     conn.autocommit = True
     cur = conn.cursor()
-    # Insertar en la tabla items (name, price)
+
+    # Leer todo el CSV una sola vez
     with open(RAW_CSV, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            cur.execute(
-                "INSERT INTO items (name, price) VALUES (%s, %s)",
-                (row["name"], row["price"]),
-            )
-    cur.execute(
-        """
+        rows = list(csv.DictReader(f))
+
+    # -------- UPSERT batch en items --------
+    upsert_sql = """
         INSERT INTO items (name, price)
-        VALUES (%s, %s)
+        VALUES %s
         ON CONFLICT (name) DO UPDATE
             SET price = EXCLUDED.price
-        """,
-        (row["name"], row["price"]),
-    )
+    """
+    upsert_values = [(r["name"], r["price"]) for r in rows]
+    execute_values(cur, upsert_sql, upsert_values)
+
+    # -------- Historial (append-only) --------
+    # Usamos template para incluir NOW() sin armar tuplas de timestamps en Python
+    hist_sql = "INSERT INTO item_prices (item_name, price, run_ts) VALUES %s"
+    hist_values = [(r["name"], r["price"]) for r in rows]
+    execute_values(cur, hist_sql, hist_values, template="(%s, %s, NOW())")
+
     cur.close()
     conn.close()
 

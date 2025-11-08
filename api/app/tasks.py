@@ -5,7 +5,12 @@ from .celery_app import celery
 from .database import SessionLocal
 
 
-@celery.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3})
+@celery.task(
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 5},
+)
 def process_item(self, item_id: int) -> str:
     db: Session = SessionLocal()
     try:
