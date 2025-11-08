@@ -50,7 +50,9 @@ class StreamWrapper(object):
     def isatty(self):
         stream = self.__wrapped
         if "PYCHARM_HOSTED" in os.environ:
-            if stream is not None and (stream is sys.__stdout__ or stream is sys.__stderr__):
+            if stream is not None and (
+                stream is sys.__stdout__ or stream is sys.__stderr__
+            ):
                 return True
         try:
             stream_isatty = stream.isatty
@@ -80,7 +82,9 @@ class AnsiToWin32(object):
     ANSI_CSI_RE = re.compile(
         "\001?\033\\[((?:\\d|;)*)([a-zA-Z])\002?"
     )  # Control Sequence Introducer
-    ANSI_OSC_RE = re.compile("\001?\033\\]([^\a]*)(\a)\002?")  # Operating System Command
+    ANSI_OSC_RE = re.compile(
+        "\001?\033\\]([^\a]*)(\a)\002?"
+    )  # Operating System Command
 
     def __init__(self, wrapped, convert=None, strip=None, autoreset=False):
         # The wrapped stream (normally sys.stdout or sys.stderr)

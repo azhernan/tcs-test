@@ -104,7 +104,9 @@ class AppEngineManager(RequestMethods):
         urlfetch_retries=True,
     ):
         if not urlfetch:
-            raise AppEnginePlatformError("URLFetch is not available in this environment.")
+            raise AppEnginePlatformError(
+                "URLFetch is not available in this environment."
+            )
 
         warnings.warn(
             "urllib3 is using URLFetch on Google App Engine sandbox instead "
@@ -180,7 +182,9 @@ class AppEngineManager(RequestMethods):
             raise SSLError(e)
 
         except urlfetch.InvalidMethodError as e:
-            raise AppEnginePlatformError("URLFetch does not support method: %s" % method, e)
+            raise AppEnginePlatformError(
+                "URLFetch does not support method: %s" % method, e
+            )
 
         http_response = self._urlfetch_response_to_http_response(
             response, retries=retries, **response_kw
@@ -197,7 +201,9 @@ class AppEngineManager(RequestMethods):
                     method = "GET"
 
                 try:
-                    retries = retries.increment(method, url, response=http_response, _pool=self)
+                    retries = retries.increment(
+                        method, url, response=http_response, _pool=self
+                    )
                 except MaxRetryError:
                     if retries.raise_on_redirect:
                         raise MaxRetryError(self, url, "too many redirects")
