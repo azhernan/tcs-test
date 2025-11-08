@@ -24,4 +24,10 @@ def list_(db: Session = Depends(database.get_db)):
     return crud.list_items(db)
 
 
-# comentario random al final
+@app.post("/items/{item_id}/process")
+def enqueue(item_id: int):
+    # Import lazy para que, si falla Celery, no se caiga el startup de la API
+    from .tasks import process_item  # <-- import acá adentro
+
+    task = process_item.delay(item_id)
+    return {"task_id": task.id, "enqueued": True}
