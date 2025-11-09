@@ -45,9 +45,7 @@ class CPPTests(TestCase):
 
     def test_unhandled_nonstd_exception_aborts(self):
         # verify that plain unhandled throw aborts
-        self._do_test_unhandled_exception(
-            _test_extension_cpp.test_exception_throw_nonstd
-        )
+        self._do_test_unhandled_exception(_test_extension_cpp.test_exception_throw_nonstd)
 
     def test_unhandled_std_exception_aborts(self):
         # verify that plain unhandled throw aborts

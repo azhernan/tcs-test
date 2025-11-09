@@ -36,9 +36,7 @@ class CAPITests(TestCase):
             child = greenlet.greenlet(bar)
             child.switch()
             greenlet.getcurrent().parent.switch(child)
-            greenlet.getcurrent().parent.throw(
-                AssertionError("Should never reach this code")
-            )
+            greenlet.getcurrent().parent.throw(AssertionError("Should never reach this code"))
 
         foo_child = greenlet.greenlet(foo).switch()
         self.assertEqual(None, _test_extension.test_setparent(foo_child))
@@ -50,9 +48,7 @@ class CAPITests(TestCase):
         self.assertEqual(-15, _test_extension.test_new_greenlet(lambda: -15))
 
     def test_raise_greenlet_dead(self):
-        self.assertRaises(
-            greenlet.GreenletExit, _test_extension.test_raise_dead_greenlet
-        )
+        self.assertRaises(greenlet.GreenletExit, _test_extension.test_raise_dead_greenlet)
 
     def test_raise_greenlet_error(self):
         self.assertRaises(greenlet.error, _test_extension.test_raise_greenlet_error)
@@ -72,19 +68,13 @@ class CAPITests(TestCase):
         g.switch()
         _test_extension.test_throw(g)
         self.assertEqual(len(seen), 1)
-        self.assertTrue(
-            isinstance(seen[0], ValueError), "ValueError was not raised in foo()"
-        )
+        self.assertTrue(isinstance(seen[0], ValueError), "ValueError was not raised in foo()")
         self.assertEqual(str(seen[0]), "take that sucka!", "message doesn't match")
 
     def test_non_traceback_param(self):
         with self.assertRaises(TypeError) as exc:
-            _test_extension.test_throw_exact(
-                greenlet.getcurrent(), Exception, Exception(), self
-            )
-        self.assertEqual(
-            str(exc.exception), "throw() third argument must be a traceback object"
-        )
+            _test_extension.test_throw_exact(greenlet.getcurrent(), Exception, Exception(), self)
+        self.assertEqual(str(exc.exception), "throw() third argument must be a traceback object")
 
     def test_instance_of_wrong_type(self):
         with self.assertRaises(TypeError) as exc:
@@ -95,9 +85,7 @@ class CAPITests(TestCase):
                 None,
             )
 
-        self.assertEqual(
-            str(exc.exception), "instance exception may not have a separate value"
-        )
+        self.assertEqual(str(exc.exception), "instance exception may not have a separate value")
 
     def test_not_throwable(self):
         with self.assertRaises(TypeError) as exc:
@@ -107,9 +95,7 @@ class CAPITests(TestCase):
                 None,
                 None,
             )
-        self.assertEqual(
-            str(exc.exception), "exceptions must be classes, or instances, not str"
-        )
+        self.assertEqual(str(exc.exception), "exceptions must be classes, or instances, not str")
 
 
 if __name__ == "__main__":

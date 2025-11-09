@@ -27,9 +27,7 @@ class VersionTests(NonLeakingTestCase):
                 tried.append(fname)
                 if os.path.exists(fname):
                     return fname
-            raise AssertionError(
-                "Could not find file " + name + "; checked " + str(tried)
-            )
+            raise AssertionError("Could not find file " + name + "; checked " + str(tried))
 
         try:
             setup_py = find_dominating_file("setup.py")

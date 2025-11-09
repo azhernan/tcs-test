@@ -79,9 +79,7 @@ def auto(
                         else:
                             yield param.name, getattr(self, param.name), param.default
             except Exception as error:
-                raise ReprError(
-                    f"Failed to auto generate __rich_repr__; {error}"
-                ) from None
+                raise ReprError(f"Failed to auto generate __rich_repr__; {error}") from None
 
         if not hasattr(cls, "__rich_repr__"):
             auto_rich_repr.__doc__ = "Build a rich repr"

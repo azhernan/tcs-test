@@ -112,9 +112,7 @@ else:
         return bool(success)
 
     def winapi_test():
-        return any(
-            _winapi_test(h) for h in (_GetStdHandle(STDOUT), _GetStdHandle(STDERR))
-        )
+        return any(_winapi_test(h) for h in (_GetStdHandle(STDOUT), _GetStdHandle(STDERR)))
 
     def GetConsoleScreenBufferInfo(stream_id=STDOUT):
         handle = _GetStdHandle(stream_id)
@@ -150,9 +148,7 @@ else:
         length = wintypes.DWORD(length)
         num_written = wintypes.DWORD(0)
         # Note that this is hard-coded for ANSI (vs wide) bytes.
-        success = _FillConsoleOutputCharacterA(
-            handle, char, length, start, byref(num_written)
-        )
+        success = _FillConsoleOutputCharacterA(handle, char, length, start, byref(num_written))
         return num_written.value
 
     def FillConsoleOutputAttribute(stream_id, attr, length, start):
@@ -162,9 +158,7 @@ else:
         length = wintypes.DWORD(length)
         num_written = wintypes.DWORD(0)
         # Note that this is hard-coded for ANSI (vs wide) bytes.
-        return _FillConsoleOutputAttribute(
-            handle, attribute, length, start, byref(num_written)
-        )
+        return _FillConsoleOutputAttribute(handle, attribute, length, start, byref(num_written))
 
     def SetConsoleTitle(title):
         return _SetConsoleTitleW(title)

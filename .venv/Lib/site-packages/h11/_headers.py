@@ -137,9 +137,7 @@ def normalize_and_validate(headers: Headers, _parsed: Literal[True]) -> Headers:
 
 
 @overload
-def normalize_and_validate(
-    headers: HeaderTypes, _parsed: Literal[False]
-) -> Headers: ...
+def normalize_and_validate(headers: HeaderTypes, _parsed: Literal[False]) -> Headers: ...
 
 
 @overload
@@ -148,9 +146,7 @@ def normalize_and_validate(
 ) -> Headers: ...
 
 
-def normalize_and_validate(
-    headers: Union[Headers, HeaderTypes], _parsed: bool = False
-) -> Headers:
+def normalize_and_validate(headers: Union[Headers, HeaderTypes], _parsed: bool = False) -> Headers:
     new_headers = []
     seen_content_length = None
     saw_transfer_encoding = False

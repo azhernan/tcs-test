@@ -56,9 +56,7 @@ def price_history(name: str, limit: int = 50):
 def latest_prices():
     import psycopg2
 
-    conn = psycopg2.connect(
-        host="db", port=5432, dbname="tcsdb", user="tcs", password="tcs"
-    )
+    conn = psycopg2.connect(host="db", port=5432, dbname="tcsdb", user="tcs", password="tcs")
     cur = conn.cursor()
     cur.execute(
         """
@@ -72,9 +70,7 @@ def latest_prices():
         ORDER BY item_name;
     """
     )
-    data = [
-        {"name": n, "price": float(p), "run_ts": str(ts)} for n, p, ts in cur.fetchall()
-    ]
+    data = [{"name": n, "price": float(p), "run_ts": str(ts)} for n, p, ts in cur.fetchall()]
     cur.close()
     conn.close()
     return {"items": data}
@@ -87,9 +83,7 @@ def upload_csv(file: UploadFile = File(...)):
 
     import psycopg2
 
-    conn = psycopg2.connect(
-        host="db", port=5432, dbname="tcsdb", user="tcs", password="tcs"
-    )
+    conn = psycopg2.connect(host="db", port=5432, dbname="tcsdb", user="tcs", password="tcs")
     conn.autocommit = True
     cur = conn.cursor()
 

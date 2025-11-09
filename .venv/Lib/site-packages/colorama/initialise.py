@@ -48,15 +48,11 @@ def init(autoreset=False, convert=None, strip=None, wrap=True):
     if sys.stdout is None:
         wrapped_stdout = None
     else:
-        sys.stdout = wrapped_stdout = wrap_stream(
-            orig_stdout, convert, strip, autoreset, wrap
-        )
+        sys.stdout = wrapped_stdout = wrap_stream(orig_stdout, convert, strip, autoreset, wrap)
     if sys.stderr is None:
         wrapped_stderr = None
     else:
-        sys.stderr = wrapped_stderr = wrap_stream(
-            orig_stderr, convert, strip, autoreset, wrap
-        )
+        sys.stderr = wrapped_stderr = wrap_stream(orig_stderr, convert, strip, autoreset, wrap)
 
     global atexit_done
     if not atexit_done:

@@ -198,9 +198,7 @@ class GroupedMetadata(Protocol):
             # Basic ABC like functionality without the complexity of an ABC
             super().__init_subclass__(*args, **kwargs)
             if cls.__iter__ is GroupedMetadata.__iter__:
-                raise TypeError(
-                    "Can't subclass GroupedMetadata without implementing __iter__"
-                )
+                raise TypeError("Can't subclass GroupedMetadata without implementing __iter__")
 
         def __iter__(self) -> Iterator[object]:  # noqa: F811
             raise NotImplementedError  # more helpful than "None has no attribute..." type errors
