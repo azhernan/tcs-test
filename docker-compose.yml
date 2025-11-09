@@ -55,6 +55,8 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__WEBSERVER__SECRET_KEY: "this_is_a_demo_secret_keep_it_same_everywhere"
       _PIP_ADDITIONAL_REQUIREMENTS: "pandas==2.2.3"
+      RETENTION_DAYS: "30"
+      DRY_RUN: "false"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
     command: [ "airflow", "scheduler" ]
@@ -70,6 +72,8 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__WEBSERVER__SECRET_KEY: "this_is_a_demo_secret_keep_it_same_everywhere"
       _PIP_ADDITIONAL_REQUIREMENTS: "pandas==2.2.3"
+      RETENTION_DAYS: "30"
+      DRY_RUN: "false"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
     ports:

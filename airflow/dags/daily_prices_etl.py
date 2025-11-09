@@ -16,11 +16,84 @@ DATA_DIR = "/opt/airflow/dags/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 RAW_CSV = os.path.join(DATA_DIR, "prices_raw.csv")
 
-PG_HOST = "db"
-PG_DB = "tcsdb"
-PG_USER = "tcs"
-PG_PASS = "tcs"
-PG_PORT = 5432
+# --- Config ---
+PG_HOST = os.getenv("PG_HOST", "db")
+PG_PORT = int(os.getenv("PG_PORT", "5432"))
+PG_DB = os.getenv("PG_DB", "tcsdb")
+PG_USER = os.getenv("PG_USER", "tcs")
+PG_PASS = os.getenv("PG_PASS", "tcs")
+# PG_HOST = "db" PG_DB = "tcsdb" PG_USER = "tcs" PG_PASS = "tcs" PG_PORT = 5432
+
+# Días de retención (por defecto 30). Podés cambiarlo por Variable de Airflow si querés.
+RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "30"))
+# Si querés “ensayo”: no borra, solo cuenta y loguea.
+DRY_RUN = os.getenv("DRY_RUN", "false").lower() in {"1", "true", "yes"}
+
+default_args = {
+    "owner": "airflow",
+    "retries": 0,
+}
+
+
+def cleanup_item_prices(**_):
+    conn = psycopg2.connect(
+        host=PG_HOST, port=PG_PORT, dbname=PG_DB, user=PG_USER, password=PG_PASS
+    )
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    # Índices recomendados (por si aún no existen)
+    cur.execute(
+        """
+        CREATE INDEX IF NOT EXISTS ix_item_prices_run_ts
+        ON item_prices(run_ts);
+        """
+    )
+
+    # Contar cuántos se borrarían
+    cur.execute(
+        """
+        SELECT COUNT(*)
+        FROM item_prices
+        WHERE run_ts < NOW() - make_interval(days => %s)
+        """,
+        (RETENTION_DAYS,),
+    )
+    (to_delete,) = cur.fetchone()
+    print(
+        f"[cleanup_item_prices] retention_days={RETENTION_DAYS} "
+        f"candidates={to_delete} dry_run={DRY_RUN}"
+    )
+
+    if not DRY_RUN and to_delete:
+        cur.execute(
+            """
+            DELETE FROM item_prices
+            WHERE run_ts < NOW() - make_interval(days => %s)
+            """,
+            (RETENTION_DAYS,),
+        )
+        print(f"[cleanup_item_prices] deleted={to_delete}")
+
+    cur.close()
+    conn.close()
+
+
+with DAG(
+    dag_id="cleanup_item_prices",
+    description="Borra históricos antiguos de item_prices",
+    start_date=dt.datetime(2025, 11, 8),
+    schedule="0 3 * * *",  # todos los días 03:00
+    catchup=False,
+    default_args=default_args,
+    tags=["housekeeping", "retention"],
+) as dag:
+    t_cleanup = PythonOperator(
+        task_id="cleanup_item_prices_task",
+        python_callable=cleanup_item_prices,
+    )
+
+    t_cleanup
 
 
 def generate_dummy_csv(**_):
